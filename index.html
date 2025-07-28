@@ -248,34 +248,79 @@
             }
         }
 
-        /* Theme Toggle */
+        /* Theme Toggle Switch */
         .theme-toggle {
             position: fixed;
             top: 30px;
             right: 30px;
-            width: 50px;
-            height: 50px;
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border-radius: 50%;
+            z-index: 1000;
+        }
+
+        .toggle-checkbox {
+            display: none;
+        }
+
+        .toggle-label {
+            position: relative;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            width: 60px;
+            height: 30px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 5px;
             cursor: pointer;
-            z-index: 1000;
             box-shadow: var(--shadow);
             border: 1px solid var(--glass-border);
-            transition: all 0.4s ease;
+            transition: all 0.3s ease;
         }
 
-        .theme-toggle:hover {
-            transform: scale(1.1) rotate(30deg);
-            box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.5);
-        }
-
-        .theme-toggle i {
-            font-size: 1.3rem;
+        .toggle-label i {
+            font-size: 1rem;
             color: var(--text);
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-label .fa-sun {
+            transform: translateX(25px);
+            opacity: 0;
+        }
+
+        .toggle-label .fa-moon {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toggle-ball {
+            position: absolute;
+            left: 5px;
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            z-index: 0;
+        }
+
+        .toggle-checkbox:checked + .toggle-label .toggle-ball {
+            transform: translateX(30px);
+        }
+
+        .toggle-checkbox:checked + .toggle-label .fa-sun {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toggle-checkbox:checked + .toggle-label .fa-moon {
+            transform: translateX(-25px);
+            opacity: 0;
+        }
+
+        .theme-toggle:hover .toggle-label {
+            box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.5);
         }
 
         /* Hero Section */
@@ -896,8 +941,13 @@
 <body>
     <!-- Theme Toggle -->
     <div class="theme-toggle" id="themeToggle">
+    <input type="checkbox" id="toggleCheckbox" class="toggle-checkbox">
+    <label for="toggleCheckbox" class="toggle-label">
         <i class="fas fa-moon"></i>
-    </div>
+        <i class="fas fa-sun"></i>
+        <span class="toggle-ball"></span>
+    </label>
+</div>
 
     <!-- Hero Section -->
     <section id="hero">
@@ -1030,6 +1080,18 @@
                         </div>
                     </div>
                 </div>
+                <div class="project-card fade-in delay-2">
+                    <div class="project-img">
+                        <img src="4.png" alt="Attendance System">
+                    </div>
+                    <div class="project-info">
+                        <h3>A K Traders - Construction Hardware Website</h3>
+                        <p>A fully responsive hardware supplier website with interactive product galleries, brand partnerships showcase, and inquiry system. Developed with modern CSS (Flexbox/Grid) and vanilla JavaScript for smooth animations and dark mode functionality.</p>
+                        <div class="project-links">
+                            <a href="https://ak-traders-azure.vercel.app/"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -1129,38 +1191,49 @@
     <script>
         // Theme Toggle
         const themeToggle = document.getElementById('themeToggle');
-        const icon = themeToggle.querySelector('i');
+        const toggleCheckbox = document.getElementById('toggleCheckbox');
         let isDark = true;
 
-        themeToggle.addEventListener('click', () => {
-            isDark = !isDark;
-            
-            if (isDark) {
-                // Switch to Dark Theme
-                document.documentElement.style.setProperty('--bg', 'var(--dark-bg)');
-                document.documentElement.style.setProperty('--text', 'var(--dark-text)');
-                document.documentElement.style.setProperty('--card', 'var(--dark-card)');
-                document.documentElement.style.setProperty('--primary', 'var(--dark-primary)');
-                document.documentElement.style.setProperty('--secondary', 'var(--dark-secondary)');
-                document.documentElement.style.setProperty('--accent', 'var(--dark-accent)');
-                document.documentElement.style.setProperty('--glass', 'var(--dark-glass)');
-                document.documentElement.style.setProperty('--shadow', '0 8px 32px rgba(0, 0, 0, 0.3)');
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-            } else {
-                // Switch to Light Theme
-                document.documentElement.style.setProperty('--bg', 'var(--light-bg)');
-                document.documentElement.style.setProperty('--text', 'var(--light-text)');
-                document.documentElement.style.setProperty('--card', 'var(--light-card)');
-                document.documentElement.style.setProperty('--primary', 'var(--light-primary)');
-                document.documentElement.style.setProperty('--secondary', 'var(--light-secondary)');
-                document.documentElement.style.setProperty('--accent', 'var(--light-accent)');
-                document.documentElement.style.setProperty('--glass', 'var(--light-glass)');
-                document.documentElement.style.setProperty('--shadow', '0 8px 32px rgba(0, 0, 0, 0.1)');
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            }
-        });
+        const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+    setLightTheme();
+    toggleCheckbox.checked = true;
+    isDark = false;
+}
+
+toggleCheckbox.addEventListener('change', () => {
+    isDark = !isDark;
+    
+    if (isDark) {
+        setDarkTheme();
+        localStorage.setItem('theme', 'dark');
+    } else {
+        setLightTheme();
+        localStorage.setItem('theme', 'light');
+    }
+});
+
+function setDarkTheme() {
+    document.documentElement.style.setProperty('--bg', 'var(--dark-bg)');
+    document.documentElement.style.setProperty('--text', 'var(--dark-text)');
+    document.documentElement.style.setProperty('--card', 'var(--dark-card)');
+    document.documentElement.style.setProperty('--primary', 'var(--dark-primary)');
+    document.documentElement.style.setProperty('--secondary', 'var(--dark-secondary)');
+    document.documentElement.style.setProperty('--accent', 'var(--dark-accent)');
+    document.documentElement.style.setProperty('--glass', 'var(--dark-glass)');
+    document.documentElement.style.setProperty('--shadow', '0 8px 32px rgba(0, 0, 0, 0.3)');
+}
+
+function setLightTheme() {
+    document.documentElement.style.setProperty('--bg', 'var(--light-bg)');
+    document.documentElement.style.setProperty('--text', 'var(--light-text)');
+    document.documentElement.style.setProperty('--card', 'var(--light-card)');
+    document.documentElement.style.setProperty('--primary', 'var(--light-primary)');
+    document.documentElement.style.setProperty('--secondary', 'var(--light-secondary)');
+    document.documentElement.style.setProperty('--accent', 'var(--light-accent)');
+    document.documentElement.style.setProperty('--glass', 'var(--light-glass)');
+    document.documentElement.style.setProperty('--shadow', '0 8px 32px rgba(0, 0, 0, 0.1)');
+}
 
         // Scroll animations
         const fadeElements = document.querySelectorAll('.fade-in');
